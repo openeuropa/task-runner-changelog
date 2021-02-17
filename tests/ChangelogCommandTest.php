@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace OpenEuropa\TaskRunner\Tests;
 
+use OpenEuropa\Changelog\TaskRunner\Commands\ChangelogCommands;
 use OpenEuropa\Changelog\Tests\HelperTestTrait;
-use OpenEuropa\TaskRunner\Commands\ChangelogCommands;
 use OpenEuropa\TaskRunner\TaskRunner;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\NullOutput;
@@ -29,7 +29,7 @@ class ChangelogCommandTest extends AbstractTest
     public function testChangelogCommands(array $options, $expected): void
     {
         $runner = new TaskRunner(new StringInput(''), new NullOutput(), $this->getClassLoader());
-        /** @var ChangelogCommands $commands */
+        /** @var \OpenEuropa\Changelog\TaskRunner\Commands\ChangelogCommands $commands */
         $commands = $runner->getCommands(ChangelogCommands::class);
         $this->assertSame($expected, $commands->generateChangelog($options)->getCommand());
     }
