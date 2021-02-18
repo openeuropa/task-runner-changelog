@@ -1,0 +1,65 @@
+clone:
+  git:
+    image: registry.fpfis.eu/drone-plugins/git:next
+    when:
+      event: [ push, pull_request, tag ]
+  git:
+    image: registry.fpfis.eu/drone-plugins/git
+    when:
+      event: [ deployment ]
+
+workspace:
+  base: /test
+  path: task-runner
+
+services:
+  web:
+    image: registry.fpfis.eu/fpfis/httpd-php:${PHP_VERSION}-ci
+    environment:
+    - DOCUMENT_ROOT=/test/task-runner
+
+pipeline:
+  composer-install-lowest:
+    group: prepare
+    image: registry.fpfis.eu/fpfis/httpd-php:${PHP_VERSION}-ci
+    volumes:
+    - /cache:/cache
+    commands:
+    # @todo remove "composer install" step once the following issue is fixed.
+    # @link https://webgate.ec.europa.eu/CITnet/jira/browse/OPENEUROPA-1234
+    - composer install --ansi --no-suggest --no-progress
+    - composer update --prefer-lowest --ansi --no-suggest --no-progress
+    when:
+      matrix:
+        COMPOSER_BOUNDARY: lowest
+
+  composer-install-highest:
+    group: prepare
+    image: registry.fpfis.eu/fpfis/httpd-php:${PHP_VERSION}-ci
+    volumes:
+    - /cache:/cache
+    commands:
+    - composer install --ansi --no-suggest --no-progress
+    when:
+      matrix:
+        COMPOSER_BOUNDARY: highest
+
+  phpcs:
+    group: test
+    image: registry.fpfis.eu/fpfis/httpd-php:${PHP_VERSION}-ci
+    commands:
+    - ./vendor/bin/phpcs
+
+  phpunit:
+    group: test
+    image: registry.fpfis.eu/fpfis/httpd-php:${PHP_VERSION}-ci
+    commands:
+    - ./vendor/bin/phpunit
+
+matrix:
+  PHP_VERSION:
+    - 7.2
+    - 7.3
+  COMPOSER_BOUNDARY:
+    - lowest
+    - highest
