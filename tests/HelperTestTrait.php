@@ -15,6 +15,7 @@ use Symfony\Component\Yaml\Yaml;
  * vendor/, the paths are no more correct.
  *
  * @todo Fix the the parent method to be inheritable and drop this trait.
+ * @see https://github.com/openeuropa/task-runner/issues/149
  */
 trait HelperTestTrait
 {
